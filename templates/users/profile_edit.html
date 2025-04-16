@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load thumbnail %}
+
+<div class="container py-5">
+  <h3 class="mb-4 text-center">Редактирование профиля</h3>
+
+  <form method="post" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Личная информация</h5>
+
+        {% for field in user_form.visible_fields %}
+        <div class=" mb-3">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+          {{ field }}
+          {% if field.errors %}
+          <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Фотографии профиля</h5>
+
+        {{ photo_formset.management_form }}
+
+        <div class="row g-4">
+          {% for form in photo_formset %}
+          <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0">
+
+              {% if form.instance.image %}
+              {% thumbnail form.instance.image "300x300" crop="center" format="WEBP" as thumb %}
+              <img src="{{ thumb.url }}" class="" alt="Фото профиля">
+              {% endthumbnail %}
+              {% else %}
+              <div class="d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                <span class="text-muted">Нет изображения</span>
+              </div>
+              {% endif %}
+
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label small">Загрузить фото</label>
+                  {{ form.image }}
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small">Порядок отображения</label>
+                  {{ form.order }}
+                </div>
+                <div class="form-check">
+                  {{ form.id }}
+                  {{ form.DELETE }}
+                  <label class="form-check-label text-danger">Удалить</label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+
+
+
+    {% if teacher_form %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Информация преподавателя</h5>
+
+        {% for field in teacher_form.visible_fields %}
+        <div class=" mb-3">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+          {{ field }}
+          {% if field.errors %}
+          <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <hr class="my-4">
+        <h5 class="card-title mb-3">Языки и стоимость за час</h5>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Язык</th>
+                <th>Цена (₽)</th>
+                <th>Удалить</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ language_formset.management_form }}
+              {% for form in language_formset %}
+              <tr>
+                {{ form.id }}
+                <td style="min-width: 200px">
+                  {{ form.language }}
+                  {% if form.language.errors %}
+                  <div class="text-danger small mt-1">
+                    {{ form.language.errors|striptags }}
+                  </div>
+                  {% endif %}
+                </td>
+                <td style="max-width: 180px">
+                  {{ form.price_per_hour }}
+                  {% if form.price_per_hour.errors %}
+                  <div class="text-danger small mt-1">
+                    {{ form.price_per_hour.errors|striptags }}
+                  </div>
+                  {% endif %}
+                </td>
+                <td>
+                  {{ form.DELETE }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+    </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary w-100">Сохранить изменения</button>
+  </form>
+
+  {% if not request.user.is_teacher %}
+  <div class="mb-4 mt-4">
+    {% if teacher_request %}
+      {% if teacher_request.approved == None %}
+        <div class="alert alert-info">Ваша заявка на преподавателя находится на рассмотрении.</div>
+      {% elif teacher_request.approved == True and not request.user.is_teacher %}
+        <div class="alert alert-danger mb-3">
+          Ваша заявка была расмотрена, но вы ещё не стали преподавателем. Обратитесь к администратору.
+        </div>
+      {% elif teacher_request.approved == False %}
+        <div class="alert alert-danger mb-3">Ваша заявка на рассмотрении.</div>
+      {% endif %}
+    {% else %}
+      <a href="{% url 'main:request_teacher_status' %}" class="btn btn-outline-success">
+        Хочу стать преподавателем
+      </a>
+    {% endif %}
+  </div>
+{% endif %}
+
+</div>
+{% endblock %}

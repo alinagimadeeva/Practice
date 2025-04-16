@@ -1,0 +1,44 @@
+<!-- подключение статик файлов -->
+{% load static %}
+{% load cache phone_norm %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'main:index' %}">LangSchool</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        
+        <a class="nav-link" href="{% url 'main:teachers_list' %}">Учителя</a>
+
+        {% if request.user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'users:profile' %}">Профиль</a>
+        </li>        
+        {% if request.user.is_teacher %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'main:my_student' %}">Ученики</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'main:teacher_applications' %}">Заявки</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Тесты</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'main:teacher_materials' %}">Материалы</a></li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'main:my_applications' %}">Мои преподаватели</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Тесты</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'main:student_materials' %}">Материалы</a></li>
+        {% endif %}
+
+        {% if request.user.is_staff %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'users:staff_panel' %}">Панель управления</a>
+        </li>
+        {% endif %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'users:logout' %}">Выйти</a></li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'users:register' %}">Регистрация</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'users:login' %}">Вход</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

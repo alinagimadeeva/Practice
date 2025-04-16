@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block content %}
+<div class="container py-5">
+  <h3 class="mb-4 text-center">Преподаватели</h3>
+  <div class="row g-4">
+    {% for teacher in teachers %}
+    <div class="col-sm-6 col-md-4 col-lg-3">
+      <div class="card h-100 shadow-sm border-0 text-center">
+
+        {% with photo=teacher.photos.first %}
+        {% if photo %}
+        {% thumbnail photo.image "300x300" crop="center" format="WEBP" as im %}
+        <a href="{% url 'main:teacher_profile' teacher.pk %}"
+              class="">
+              <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" class="card-img-top rounded-top"
+          alt="{{ teacher.get_full_name }}">
+            </a>
+        
+        {% endthumbnail %}
+        {% else %}
+        <div class="bg-light d-flex align-items-center justify-content-center" style="width:100%; height:300px;">
+          <span class="text-muted">Нет фото</span>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'main:teacher_profile' teacher.pk %}"
+              class="text-decoration-none text-dark">
+              {{ teacher.get_full_name }}
+            </a>
+          </h5>
+          {% if teacher.teacher_profile %}
+          <p class="small mb-1 text-muted">Опыт: {{ teacher.teacher_profile.get_experience }}</p>
+          <p class="small mb-2 fw-bold">Языки:</p>
+          <ul class="list-unstyled small">
+            {% for lang in teacher.teacher_profile.language_prices.all %}
+            <li>{{ lang.language.name }} — <strong>{{ lang.price_per_hour }}₽</strong></li>
+            {% empty %}
+            <li class="text-muted">Не указано</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
