@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Преподаватели, которым вы отправили заявки</h2>
+
+    {% if teachers %}
+        <div class="row gap-4">
+            {% for teacher in teachers %}
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ teacher.get_full_name }}</h4>
+                            <div class="mb-4">
+                                {% with photo=teacher.photos.first %}
+                                {% if photo %}
+                                {% thumbnail photo.image "300x300" crop="center" format="WEBP" as im %}
+                                <a href="{% url 'main:teacher_profile' teacher.pk %}"
+                                      class="">
+                                      <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" 
+                                  alt="{{ teacher.get_full_name }}">
+                                    </a>
+                                
+                                {% endthumbnail %}
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" style="width:100%; height:300px;">
+                                  <span class="text-muted">Нет фото</span>
+                                </div>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                            
+                            {% if teacher.teacher_profile %}
+                            <p><strong>Опыт:</strong> {{ teacher.teacher_profile.get_experience }}</p>
+
+                            {% endif %}
+
+                            <h5>Языки, на которые поданы заявки:</h5>
+                            <ul class="list-group list-group-flush mb-3">
+                                {% for app in teacher.applications_received.all %}
+                                    {% if app.student == request.user %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ app.language.language.name }}
+                                            <span class="badge 
+                                                {% if app.status == 'pending' %} bg-secondary
+                                                {% elif app.status == 'accepted' %} bg-success
+                                                {% elif app.status == 'rejected' %} bg-danger
+                                                {% else %} bg-warning {% endif %}">
+                                                {{ app.get_status_display }}
+                                            </span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+
+                            <a href="{% url 'main:teacher_profile' teacher.pk %}" class="btn btn-primary">Профиль преподавателя</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-secondary">
+            <p class="mb-0">Вы еще не отправляли заявки преподавателям.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

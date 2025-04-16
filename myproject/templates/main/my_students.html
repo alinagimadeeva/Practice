@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block content %}
+<div class="container py-5">
+  <h3 class="mb-4 text-center">Мои ученики</h3>
+
+  {% if applications %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for app in applications %}
+        <div class="col">
+          <a href="{% url 'main:student_profile' app.student.id %}" class="text-decoration-none text-dark">
+            <div class="card h-100 shadow-sm border-0">
+              {% if app.student.photos.exists %}
+                {% thumbnail app.student.photos.first.image "400x300" crop="center" format="WEBP" as im %}
+                  <img src="{{ im.url }}" class="card-img-top" alt="Фото {{ app.student.get_full_name }}">
+                {% endthumbnail %}
+              {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                  <span class="text-muted">Нет фото</span>
+                </div>
+              {% endif %}
+
+              <div class="card-body">
+                <h5 class="card-title mb-1">{{ app.student.get_full_name }}</h5>
+                <p class="card-text mb-1"><strong>Язык:</strong> {{ app.language.language.name }}</p>
+                <p class="card-text text-muted small">{{ app.created_at|date:"d.m.Y H:i" }}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center" role="alert">
+      Пока нет принятых заявок от учеников.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
