@@ -1,0 +1,13 @@
+@import url("fonts.css");
+
+body{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
+
+}
+.body_main {
+    flex: 1;
+}
